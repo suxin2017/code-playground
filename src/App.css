@@ -1,0 +1,27 @@
+.App {
+  display: flex;
+}
+body{
+  background-color: #4B5563;
+  padding: 0;
+  margin: 0;
+}
+.playground-header{
+  height: 64px;
+  color: #fff;
+  background-color: #1F2937;
+}
+
+.playground-header-title{
+  font-size: 22px;
+  line-height: 64px;
+  padding: 0 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.layout{
+  margin-top: 10px;
+}
