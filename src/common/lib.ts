@@ -162,9 +162,7 @@ export class Lib {
         rawJson,
         `node_modules/${this.libraryName}/package.json`
       );
-      console.log(packageJSON);
 
-      const dependencies = packageJSON.dependencies;
       // non-inferred route
       let rootTypePath =
         packageJSON.typing || packageJSON.typings || packageJSON.types;

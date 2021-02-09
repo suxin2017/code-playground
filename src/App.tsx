@@ -46,8 +46,8 @@ function App() {
   const [coreState, dispatch] = React.useReducer(CodeReducer, initState);
   const layout = [
     {i: 'css', x: 0, y: 0, w: 4, h: 6,static:true },
-    {i: 'js', x: 0, y: 0, w: 12, h: 12,static:true},
-    {i: 'html', x: 0, y: 6, w: 4, h: 6,static:true},
+    {i: 'js', x: 0, y: 6, w: 4, h: 6,static:true},
+    {i: 'html', x: 0, y: 12, w: 4, h: 6,static:true},
     {i: 'preview', x: 4, y: 0, w: 8, h: 18,static:true}
   ];
   return (
@@ -61,18 +61,18 @@ function App() {
         <div className="playground-header-title">Code Playground</div>
       </header>
       <ReactGridLayout layout={layout} className="layout" margin={[10,20]} cols={12} rowHeight={30} width={window.innerWidth} >
-        {/* <div key="html" > 
+        <div key="html" > 
           <HtmlEditor />
         </div>
         <div key="css" >
           <CssEditor />
-        </div> */}
+        </div>
         <div key="js" > 
           <JsEditor />
         </div>
-        {/* <div key="preview" style={{padding:'10px 0 0 0'}}>
+        <div key="preview" style={{padding:'10px 0 0 0'}}>
           <Preview />
-        </div> */}
+        </div>
       </ReactGridLayout>
     </CoreContext.Provider>
   );
