@@ -1,3 +1,5 @@
+import { editor, languages } from "monaco-editor";
+import * as monaco from "monaco-editor";
 import {
   loadCDNFile,
   loadDefaultVersion,
@@ -6,6 +8,9 @@ import {
   loadType,
 } from "../loader/cdnLoader";
 import { DefinitelyType, FileInfo, IncludedType } from "../types";
+
+export const types = new Map();
+
 //** A really dumb version of path.resolve */
 const mapRelativePath = (moduleDeclaration: string, currentPath: string) => {
   // https://stackoverflow.com/questions/14780350/convert-relative-path-to-absolute-using-javascript
@@ -53,12 +58,42 @@ const parseFileForModuleReferences = (sourceCode: string) => {
   return Array.from(foundModules);
 };
 
+const getReferenceDependencies = (sourceCode: string, path: string) => {
+  const foundModules = new Set<string>();
+  var match;
+  if (sourceCode.indexOf("reference path") > 0) {
+    // https://regex101.com/r/DaOegw/1
+    const referencePathExtractionPattern = /<reference path="(.*)" \/>/gm;
+    while ((match = referencePathExtractionPattern.exec(sourceCode)) !== null) {
+      const relativePath = match[1];
+      if (relativePath) {
+        let newPath = mapRelativePath(relativePath, path);
+        if (newPath) {
+          foundModules.add("./" + newPath);
+        }
+      }
+    }
+  }
+  return Array.from(foundModules);
+};
+
 export class Lib {
   libraryName: string;
 
   version?: string;
 
   fileList?: FileInfo;
+
+  static default = monaco.languages.typescript.typescriptDefaults;
+
+  static addLibraryToRuntime = (code: string, path: string) => {
+    console.log("添加类型", path);
+    Lib.default.addExtraLib(code, path);
+    const uri = monaco.Uri.file(path);
+    if (monaco.editor.getModel(uri) === null) {
+      monaco.editor.createModel(code, "typescript", uri);
+    }
+  };
 
   packageInfo: any;
 
@@ -117,10 +152,16 @@ export class Lib {
 
   async getTypeDefined() {
     if (this.type?.types?.ts === "definitely-typed") {
+      console.log(this.libraryName, "libararyName");
       const typeLib = new Lib(this.type.types.definitelyTyped, this.version);
       console.log(await (await typeLib.load()).getTypeDefined());
     } else {
-      const packageJSON = JSON.parse(await this.getPackageJson());
+      const rawJson = await this.getPackageJson();
+      const packageJSON = JSON.parse(rawJson);
+      Lib.addLibraryToRuntime(
+        rawJson,
+        `node_modules/${this.libraryName}/package.json`
+      );
       console.log(packageJSON);
 
       const dependencies = packageJSON.dependencies;
@@ -138,12 +179,12 @@ export class Lib {
       }
 
       // Final fallback, to have got here it must have passed in algolia
-      if (!rootTypePath) {
+      if (!rootTypePath || rootTypePath === "index") {
         rootTypePath = "index.d.ts";
       }
 
-      const mainDts = await this.getDep(rootTypePath);
-      console.log(this.types);
+      console.log(rootTypePath, "rootTypePath");
+      await this.getDep(rootTypePath);
 
       return rootTypePath;
     }
@@ -153,33 +194,43 @@ export class Lib {
     return await loadCDNFile(this.libraryName, this.version, path);
   }
 
-  types = new Map();
-
   async getDep(currentPath: string) {
-    if (this.types.has(currentPath)) {
+    if (types.has(currentPath)) {
       return;
     }
     const mainDts = await this.getFile(currentPath);
 
     if (mainDts) {
       let deps = parseFileForModuleReferences(mainDts);
+      let referDeps = getReferenceDependencies(mainDts, currentPath);
 
       const typelessModule = this.libraryName.split("@types/").slice(-1);
       const wrapped = `declare module "${typelessModule}" { ${mainDts} }`;
+      Lib.addLibraryToRuntime(
+        wrapped,
+        `node_modules/${this.libraryName}/${currentPath}`
+      );
 
       await Promise.all(
-        deps.map(async (dep) => {
+        deps.concat(referDeps).map(async (dep) => {
           const isRelative = dep.startsWith(".");
           if (isRelative) {
             const relativePath = mapRelativePath(dep, currentPath);
             const path = relativePath.endsWith(".d.ts")
               ? relativePath
               : relativePath + ".d.ts";
-            console.log("set z", currentPath);
-            this.types.set(currentPath, wrapped);
+
             await this.getDep(path);
           } else {
-            console.log(this.packageJSON, "packageJSON");
+            const packageJSON = JSON.parse(await this.getPackageJson());
+            const dependencies = packageJSON.dependencies;
+
+            const typeLib = new Lib(
+              dep,
+              dependencies[dep] === "*" ? undefined : dependencies[dep]
+            );
+
+            await (await typeLib.load()).getTypeDefined();
           }
         })
       );

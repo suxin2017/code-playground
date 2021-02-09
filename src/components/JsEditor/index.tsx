@@ -6,6 +6,7 @@ import { debounce } from "lodash";
 import { CoreEditor } from "../CoreEditor";
 import { Lib } from "../../common/lib";
 import { verify } from "crypto";
+import { types } from "../../common/lib";
 export interface IJsEditorProps {}
 
 export function JsEditor(props: IJsEditorProps) {
@@ -21,24 +22,10 @@ export function JsEditor(props: IJsEditorProps) {
       module: languages.typescript.ModuleKind.CommonJS,
       typeRoots: ["node_modules/@types"],
     });
-    const addLibraryToRuntime = (code: string, path: string) => {
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(code, path)
-      const uri = monaco.Uri.file(path)
-      if (monaco.editor.getModel(uri) === null) {
-        monaco.editor.createModel(code, "typescript", uri)
-      }
-    }
     (async () => {
       const vue = await new Lib("react").load();
       await vue.getTypeDefined();
 
-      addLibraryToRuntime(await vue.getPackageJson(),`node_modules/${vue.libraryName}/package.json`)
-      
-      vue.types.forEach((context,key) => {
-        console.log('路径',`node_modules/${vue.libraryName}/${key}`,context)
-        addLibraryToRuntime(context,`node_modules/${vue.libraryName}/${key}`)
-
-      });
     })();
 
     // const array = [
