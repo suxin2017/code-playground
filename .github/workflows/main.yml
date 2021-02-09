@@ -23,13 +23,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-          
-      - uses: actions/checkout@master
-      - name: Install
-        uses: CultureHQ/actions-yarn@master
-        with:
-            args: install
-     
+      # 执行脚本
+      - run: npm install
       - run: npm run build
 
       - name: GitHub Pages
