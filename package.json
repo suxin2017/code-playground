@@ -1,6 +1,7 @@
 {
   "name": "my-app",
   "version": "0.1.0",
+  "homepage": "https://suxin2017.github.io/code-playground",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.12.13",
