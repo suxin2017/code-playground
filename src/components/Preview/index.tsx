@@ -1,26 +1,30 @@
 import * as React from "react";
-import { CoreContext } from "../../App";
-import { loadDefaultVersion } from "../../loader/cdnLoader";
+import { CodeContext, LibraryContext } from "../../App";
+import { getFileUrl } from "../../common/cdn";
+import { loadCDNURL, loadDefaultVersion } from "../../loader/cdnLoader";
 import { getCompileSrc } from "../../parser/jsParser";
-import {Lib} from "../../common/lib" 
 export interface IPreviewProps {}
 
 export function Preview(props: IPreviewProps) {
   const [playground, setPlayground] = React.useState("");
-  const coreContext = React.useContext(CoreContext);
-  React.useEffect( () => {
-    loadDefaultVersion('react');
+  const coreContext = React.useContext(CodeContext);
+  const { library } = React.useContext(LibraryContext);
 
-  
+  React.useEffect(() => {
+    loadDefaultVersion("react");
 
     let dll = getCompileSrc(coreContext.coreState.js);
 
     const systemjs = `<script src="https://cdn.jsdelivr.net/npm/systemjs@6.8.3/dist/system.min.js"></script>`;
     const html = coreContext.coreState.html;
-    const library = {
+    let libs = library.reduce((a, b) => {
+      a[b] = loadCDNURL(b);
+      return a;
+    }, {} as any);
+    console.log(libs, "libs");
+    const systemLibrary = {
       imports: {
-        lodash: "https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js",
-        vue: "https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js",
+        ...libs,
       },
     };
     const f = `
@@ -31,7 +35,7 @@ export function Preview(props: IPreviewProps) {
 
             <!-- 加载依赖 -->
             <script type="systemjs-importmap">
-                ${JSON.stringify(library)}
+                ${JSON.stringify(systemLibrary)}
             </script>
 
         
@@ -58,9 +62,14 @@ export function Preview(props: IPreviewProps) {
     return () => {
       URL.revokeObjectURL(s);
     };
-  }, [coreContext]);
-  return <iframe
-    src={playground}
-    style={{  width: "100%", height: "100%" }}
-  ></iframe>;
+  }, [coreContext, library]);
+  return (
+    <div>
+      {JSON.stringify(library)}
+      <iframe
+        src={playground}
+        style={{ width: "100%", height: "100%" }}
+      ></iframe>
+    </div>
+  );
 }

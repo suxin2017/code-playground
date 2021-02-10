@@ -5,12 +5,17 @@ export const getNpmSearchUrl = (moduleName: string, attributes?: string[]) =>
 
 export const CDN_URL = `https://data.jsdelivr.com/v1/package/npm/`;
 
-export const getFileUrl = (libraryName: string, version?: string, path?: string) =>
-  `https://cdn.jsdelivr.net/npm/${libraryName}${version && "@" + version}${
-    path && "/" + path
+export const getFileUrl = (
+  libraryName: string,
+  version?: string,
+  path?: string
+) =>
+  `https://cdn.jsdelivr.net/npm/${libraryName}${version ? "@" + version : ""}${
+    path ? (path?.startsWith("/") ? path : "/" + path) : ""
   }`;
 
-export const getNpmVersionUrl = (libraryName: string) => `${CDN_URL}${libraryName}`;
+export const getNpmVersionUrl = (libraryName: string) =>
+  `${CDN_URL}${libraryName}`;
 
 export const getFileInfoUrl = (libraryName: string, version: string) =>
   `${CDN_URL}${libraryName}${version && "@" + version}`;
