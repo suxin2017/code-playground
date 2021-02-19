@@ -1,10 +1,10 @@
 import * as React from "react";
-import { CoreContext } from "../../App";
+import { CodeContext } from "../../App";
 import { CoreEditor } from "../CoreEditor";
 export interface IHtmlEditorProps {}
 
 export function HtmlEditor(props: IHtmlEditorProps) {
-  const coreState = React.useContext(CoreContext)
+  const coreState = React.useContext(CodeContext)
   return (
       <CoreEditor initValue={''} 
       value={coreState.coreState.html}

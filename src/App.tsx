@@ -8,6 +8,8 @@ import "react-grid-layout/css/styles.css";
 import RGL, { WidthProvider } from "react-grid-layout";
 import { HtmlEditor } from "./components/HtmlEditor";
 import { parse, stringify } from "qs";
+import { AnyObj } from "./types";
+import { Setting } from "./components/Setting";
 const ReactGridLayout = WidthProvider(RGL);
 
 type CodeState = {
@@ -15,6 +17,7 @@ type CodeState = {
   css: string;
   html: string;
 };
+
 const CodeReducer = (
   state: CodeState,
   action: {
@@ -49,7 +52,7 @@ const initState: CodeState = {
   html: "",
 };
 
-export const CoreContext = React.createContext<{
+export const CodeContext = React.createContext<{
   coreState: CodeState;
   dispatch: React.Dispatch<{
     type: "css" | "js" | "html" | "all";
@@ -57,6 +60,35 @@ export const CoreContext = React.createContext<{
     codeState?: CodeState;
   }>;
 }>({ coreState: initState, dispatch: () => {} });
+
+export const LibraryContext = React.createContext<{
+  library: string[];
+  dispatch: React.Dispatch<{
+    type: "add" | "delete";
+    moduleName: string;
+  }>;
+}>({ library: [], dispatch: () => {} });
+
+const LibararyReducer = (
+  library: string[],
+  action: { type: "add" | "delete"; moduleName: string }
+) => {
+  const { moduleName } = action;
+  let hasExist = library.indexOf(moduleName) !== -1;
+  switch (action.type) {
+    case "add":
+      if (hasExist) {
+        return library;
+      }
+      return [...library, action.moduleName];
+    case "delete":
+      if (hasExist) {
+        library.splice(library.indexOf(moduleName), 1);
+        return [...library];
+      }
+      return library;
+  }
+};
 
 function App() {
   const [coreState, dispatch] = React.useReducer(CodeReducer, initState);
@@ -82,8 +114,9 @@ function App() {
       }
     }
   }, []);
+
   return (
-    <CoreContext.Provider
+    <CodeContext.Provider
       value={{
         coreState,
         dispatch,
