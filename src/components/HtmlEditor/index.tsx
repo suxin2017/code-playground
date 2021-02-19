@@ -6,7 +6,9 @@ export interface IHtmlEditorProps {}
 export function HtmlEditor(props: IHtmlEditorProps) {
   const coreState = React.useContext(CoreContext)
   return (
-      <CoreEditor initValue={''} language='html' onChange={editor=>{
+      <CoreEditor initValue={''} 
+      value={coreState.coreState.html}
+      language='html' onChange={editor=>{
         const currentCode = editor.getValue();
         coreState.dispatch({
           type:'html',

@@ -12,11 +12,12 @@ import("monaco-themes/themes/Night Owl.json").then((data) => {
 export interface ICoreEditorProps {
   initValue: string;
   language: string;
+  value?:string;
   onChange?: (instance: editor.IStandaloneCodeEditor) => void;
 }
 
 export function CoreEditor(props: ICoreEditorProps) {
-  const { initValue, language } = props;
+  const { value,initValue, language } = props;
 
   const ref = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<editor.IStandaloneCodeEditor>();
@@ -46,6 +47,12 @@ export function CoreEditor(props: ICoreEditorProps) {
       );
     }
   }, []);
+
+  React.useEffect(()=>{
+    if(value){
+      editorRef.current?.getModel()?.setValue(value);
+    }
+  },[value])
 
   return (
     <div className={styles.editor}>

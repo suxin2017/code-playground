@@ -67,7 +67,8 @@ export function JsEditor(props: IJsEditorProps) {
   return (
     <CoreEditor
       initValue={""}
-      language="typescript"
+      value={coreState.coreState.js}
+      language="javascript"
       onChange={(editor) => {
         const currentCode = editor.getValue();
         coreState?.dispatch?.({
