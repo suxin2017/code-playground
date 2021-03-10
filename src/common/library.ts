@@ -188,7 +188,8 @@ export class Library {
     if (this.name.startsWith("@types")) {
       return context;
     }
-    return `declare module "${this.name}" { ${context} }`;
+    return context;
+    // return `declare module "${this.name}" { ${context} }`;
   }
 
   async getPackageJson() {
