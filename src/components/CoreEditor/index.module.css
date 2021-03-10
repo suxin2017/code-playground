@@ -5,6 +5,9 @@
     height: 32px;
     line-height: 32px;
     padding: 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .editor{

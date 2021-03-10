@@ -2,6 +2,7 @@ import * as React from "react";
 import { editor, languages, Uri } from "monaco-editor";
 import { debounce } from "lodash";
 import styles from "./index.module.css";
+import SettingIcon from "./icon/setting.svg";
 
 import("monaco-themes/themes/Night Owl.json").then((data) => {
   // @ts-ignore
@@ -14,6 +15,7 @@ export interface ICoreEditorProps {
   language: string;
   value?:string;
   onChange?: (instance: editor.IStandaloneCodeEditor) => void;
+  onSettingClick?: ()=>void;
 }
 
 export function CoreEditor(props: ICoreEditorProps) {
@@ -56,7 +58,10 @@ export function CoreEditor(props: ICoreEditorProps) {
 
   return (
     <div className={styles.editor}>
-      <div className={styles.header}>{language}</div>
+      <div className={styles.header}>
+        <span>{language}</span>
+      
+      </div>
       <div
         ref={ref}
         style={{ width: "100%", height: "calc(100% - 24px)" }}

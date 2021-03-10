@@ -8,8 +8,9 @@ import "react-grid-layout/css/styles.css";
 import RGL, { WidthProvider } from "react-grid-layout";
 import { HtmlEditor } from "./components/HtmlEditor";
 import { parse, stringify } from "qs";
-import { AnyObj } from "./types";
 import { Setting } from "./components/Setting";
+import 'antd/dist/antd.dark.css'; 
+
 const ReactGridLayout = WidthProvider(RGL);
 
 type CodeState = {
@@ -42,7 +43,7 @@ const CodeReducer = (
         newState = action.codeState;
       }
   }
-  window.history.pushState(null, "", "?" + stringify({ p: newState }));
+  window.history.pushState(null, "", "?" + stringify({ ...getD(),p: newState }));
   return newState;
 };
 
@@ -90,8 +91,17 @@ const LibararyReducer = (
   }
 };
 
+function getD() {
+  const data = window.location.search;
+  const d: any = parse(data.slice(1));
+  return d;
+}
 function App() {
   const [coreState, dispatch] = React.useReducer(CodeReducer, initState);
+  const [cssLib, setCssLib] = React.useState([] as string[]);
+  const [jsLib, setJsLib] = React.useState([] as any[]);
+  const [global,setGlobal] = React.useState(false);
+  const [visible,setVisiblw] = React.useState(false);
   const [config, setConfig] = React.useState([
     { i: "css", x: 0, y: 0, w: 4, h: 6, static: true },
     { i: "js", x: 0, y: 0, w: 4, h: 6, static: true },
@@ -109,6 +119,18 @@ function App() {
           code: "",
           codeState: d.p,
         });
+        console.log(d)
+        if(d.cssLib){
+          setCssLib(d.cssLib);
+        }
+        if(d.jsLib){
+
+          setJsLib(d.jsLib);
+        }
+        if(d.global != null){
+
+          setGlobal(Boolean(d.global))
+        }
       } catch (e) {
         console.error("json", e);
       }
@@ -124,29 +146,58 @@ function App() {
     >
       <header className="playground-header">
         <div className="playground-header-title">Code Playground</div>
+        <span className="setting" onClick={()=>{
+          setVisiblw(true);
+        }}></span>
       </header>
-      <ReactGridLayout
-        layout={config}
-        className="layout"
-        margin={[10, 20]}
-        cols={12}
-        rowHeight={30}
-        width={window.innerWidth}
-      >
-        <div key="html">
-          <HtmlEditor />
+      <div style={{ display: "flex" }}>
+        <Setting
+        visible={visible}
+        onCancel={()=>{
+          setVisiblw(false)
+        }}
+          cssLib={cssLib}
+          setCssLib={(args) => {
+            window.history.pushState(null, "", "?" + stringify({ ...getD(),cssLib:args }));
+            setCssLib(args);
+          }}
+          global={global}
+          setGlobal={(args)=>{
+            window.history.pushState(null,"","?"+stringify({...getD(),global:args}))
+            setGlobal(args)
+          }}
+          jsLib={jsLib}
+          setJsLib={(args) => {
+            window.history.pushState(null, "", "?" + stringify({ ...getD(),jsLib:args }));
+            setJsLib(args);
+          }}
+        ></Setting>
+        <div style={{ flexGrow: 1 }}>
+          <ReactGridLayout
+            layout={config}
+            className="layout"
+            margin={[10, 20]}
+            cols={12}
+            rowHeight={30}
+            width={window.innerWidth}
+          >
+            <div key="html">
+              <HtmlEditor />
+            </div>
+            <div key="css">
+              <CssEditor />
+            </div>
+            <div key="js">
+              <JsEditor jsLib={jsLib} />
+            </div>
+            <div key="preview" style={{ padding: "10px 0 0 0" }}>
+              <Preview cssLib={cssLib} jsLib={jsLib} global={global}/>
+            </div>
+          </ReactGridLayout>
         </div>
-        <div key="css">
-          <CssEditor />
-        </div>
-        <div key="js">
-          <JsEditor />
-        </div>
-        <div key="preview" style={{ padding: "10px 0 0 0" }}>
-          <Preview />
-        </div>
-      </ReactGridLayout>
-    </CoreContext.Provider>
+      </div>
+      
+    </CodeContext.Provider>
   );
 }
 

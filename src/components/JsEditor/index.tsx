@@ -3,7 +3,9 @@ import { editor, languages } from "monaco-editor";
 import { CodeContext, LibraryContext } from "../../App";
 import { CoreEditor } from "../CoreEditor";
 import { Library, tsDefault } from "../../common/library";
-export interface IJsEditorProps {}
+export interface IJsEditorProps {
+  jsLib:any[]
+}
 let oldLibrary: string[] = [];
 export function JsEditor(props: IJsEditorProps) {
   const coreState = React.useContext(CodeContext);
@@ -21,27 +23,27 @@ export function JsEditor(props: IJsEditorProps) {
       allowSyntheticDefaultImports: true,
     });
 
-    (async () => {
-      const lib = Library.createLib("react-dom");
-      (await lib).loadTypeDefined();
-    })();
   }, []);
 
   React.useEffect(() => {
-    if (library) {
-      library.forEach(async (lib) => {
+    if (props.jsLib) {
+      let t =  props.jsLib.reduce((a,b)=>{
+        return [...a,Object.keys(b)[0]]
+      },[])
+      t.forEach(async (lib: string) => {
         if (oldLibrary.indexOf(lib) === -1) {
           (await Library.createLib(lib)).loadTypeDefined();
+          console.log('加载',lib)
         }
       });
-      oldLibrary = library;
+      oldLibrary = t;
     }
-  }, [library]);
+  }, [props.jsLib]);
   return (
     <CoreEditor
       initValue={""}
       value={coreState.coreState.js}
-      language="javascript"
+      language="typescript"
       onChange={(editor) => {
         const currentCode = editor.getValue();
         coreState?.dispatch?.({

@@ -1,3 +1,4 @@
+
 .App {
   display: flex;
 }
@@ -10,6 +11,9 @@ body {
   height: 64px;
   color: #fff;
   background-color: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .playground-header-title {
@@ -36,4 +40,13 @@ body {
 
 .playground {
   flex-grow: 1;
+}
+
+
+.setting{
+  background:url(./icon/setting.svg);
+  height: 24px;
+  width: 24px;
+  background-size: contain;
+  display: inline-block;
 }
