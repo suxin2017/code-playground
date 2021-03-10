@@ -3,6 +3,7 @@ import { editor, languages, Uri } from "monaco-editor";
 import { debounce } from "lodash";
 import styles from "./index.module.css";
 import SettingIcon from "./icon/setting.svg";
+import { CodeContext } from "../../App";
 
 import("monaco-themes/themes/Night Owl.json").then((data) => {
   // @ts-ignore
@@ -20,7 +21,7 @@ export interface ICoreEditorProps {
 
 export function CoreEditor(props: ICoreEditorProps) {
   const { value,initValue, language } = props;
-
+  const coreState = React.useContext(CodeContext);
   const ref = React.useRef<HTMLDivElement>(null);
   const editorRef = React.useRef<editor.IStandaloneCodeEditor>();
 
@@ -51,10 +52,10 @@ export function CoreEditor(props: ICoreEditorProps) {
   }, []);
 
   React.useEffect(()=>{
-    if(value){
+    if(value && coreState.coreState.once){
       editorRef.current?.getModel()?.setValue(value);
     }
-  },[value])
+  },[coreState.coreState.once])
 
   return (
     <div className={styles.editor}>

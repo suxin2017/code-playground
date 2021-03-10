@@ -17,6 +17,7 @@ type CodeState = {
   js: string;
   css: string;
   html: string;
+  once: boolean;
 };
 
 const CodeReducer = (
@@ -51,6 +52,7 @@ const initState: CodeState = {
   js: "",
   css: "",
   html: "",
+  once: false,
 };
 
 export const CodeContext = React.createContext<{
@@ -117,7 +119,7 @@ function App() {
         dispatch({
           type: "all",
           code: "",
-          codeState: d.p,
+          codeState: { ...d.p,once:true},
         });
         console.log(d)
         if(d.cssLib){

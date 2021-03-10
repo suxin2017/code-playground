@@ -15,7 +15,6 @@ export function Preview(props: IPreviewProps) {
   const { library } = React.useContext(LibraryContext);
 
   React.useEffect(() => {
-    loadDefaultVersion("react");
 
     let dll = getCompileSrc(coreContext.coreState.js);
 
