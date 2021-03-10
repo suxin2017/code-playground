@@ -1,26 +1,14 @@
-import { parse } from "@babel/parser";
-import generate from "@babel/generator";
-import { ParserOptions } from "@babel/core";
-import { func } from "prop-types";
+import {transform} from '@babel/standalone';
 
-const parseOption: ParserOptions = {
-  sourceType: "module",
-};
-
-const importReg = /import\s*([{\sa-z_A-Z0-9\s,}]*?)\s+from\s*(["'a-zA-Z0-9'"]*);?/g;
+const importReg = /import\s*([{\sa-z_A-Z0-9\s,}]*?)\s+from\s*(["'a-zA-Z0-9\-'"]*);?/g;
 
 export function getCompileSrc(code: string) {
   try {
-    const ast = parse(code, parseOption);
-    const output = generate(
-      ast,
-      {
-        /* options */
-      },
-      code
-    );
+    const output = transform(code,{
+      "presets": ["react"]
+    })
     let module = 0;
-    const resultCode = output.code.replace(importReg, (match, p1, p2) => {
+    const resultCode = output.code?.replace(importReg, (match, p1, p2) => {
       module += 1;
       return [
         `const module_${module} = await System.import(${p2});`,

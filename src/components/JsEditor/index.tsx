@@ -13,7 +13,8 @@ export function JsEditor(props: IJsEditorProps) {
 
   React.useEffect(() => {
     languages.typescript.typescriptDefaults.setCompilerOptions({
-      // allowJs:true,
+      allowJs:true,
+      jsx:languages.typescript.JsxEmit.React,
       esModuleInterop: true,
       target: languages.typescript.ScriptTarget.ES2016,
       allowNonTsExtensions: true,
