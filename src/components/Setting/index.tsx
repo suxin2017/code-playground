@@ -76,6 +76,7 @@ export function Setting(props: ISettingProps) {
 
           <Radio.Group value={props.global} onChange={(e) => {
             let v = e.target.value;
+            console.log('v',v)
             props.setGlobal(v);
           }}>
             <Radio value={true}>全局引入</Radio>

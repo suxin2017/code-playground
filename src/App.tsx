@@ -130,15 +130,17 @@ function App() {
           setJsLib(d.jsLib);
         }
         if(d.global != null){
-
-          setGlobal(Boolean(d.global))
+          if(d.global === 'false'){
+            setGlobal(false)
+          }else{
+            setGlobal(true)
+          }
         }
       } catch (e) {
         console.error("json", e);
       }
     }
   }, []);
-
   return (
     <CodeContext.Provider
       value={{
