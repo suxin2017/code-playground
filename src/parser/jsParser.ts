@@ -1,6 +1,6 @@
 import {transform} from '@babel/standalone';
 
-const importReg = /import\s*([{\sa-z_A-Z0-9\s,}]*?)\s+from\s*(["'a-zA-Z0-9\-'"]*);?/g;
+const importReg = /import\s*([{\sa-z_A-Z0-9\s,}]*?)\s+from\s*(["'a-zA-Z0-9'"]*);?/g;
 
 export function getCompileSrc(code: string) {
   try {
